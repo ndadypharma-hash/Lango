@@ -1,0 +1,27 @@
+# Compilation en ligne de l'application Android de test (Codemagic).
+# Dans l'interface Codemagic, définir la variable API_URL (adresse du serveur Lango).
+workflows:
+  android-test:
+    name: Lango Android — version de test
+    instance_type: linux_x2
+    max_build_duration: 45
+    environment:
+      flutter: stable
+    triggering:
+      events:
+        - push
+      branch_patterns:
+        - pattern: main
+    scripts:
+      - name: Préparer le projet Android
+        script: cd app && bash tool/prepare_android.sh
+      - name: Installer les dépendances
+        script: cd app && flutter pub get
+      - name: Analyser le code
+        script: cd app && flutter analyze --no-fatal-infos
+      - name: Tests
+        script: cd app && flutter test
+      - name: Construire l'APK
+        script: cd app && flutter build apk --release --dart-define=API_URL=$API_URL
+    artifacts:
+      - app/build/app/outputs/flutter-apk/*.apk
