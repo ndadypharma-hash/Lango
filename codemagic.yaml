@@ -3,9 +3,11 @@
 workflows:
   android-test:
     name: Lango Android — version de test
-    instance_type: linux_x2
+    instance_type: mac_mini_m2
     max_build_duration: 45
     environment:
+      groups:
+        - lango   # groupe de variables créé dans Codemagic, contenant API_URL
       flutter: stable
     triggering:
       events:
