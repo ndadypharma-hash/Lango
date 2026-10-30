@@ -1,13 +1,11 @@
 # Compilation en ligne de l'application Android de test (Codemagic).
-# Dans l'interface Codemagic, définir la variable API_URL (adresse du serveur Lango).
+# Adresse du serveur : lib/config.dart (modifiable avec la variable API_URL).
 workflows:
   android-test:
     name: Lango Android — version de test
     instance_type: mac_mini_m2
     max_build_duration: 45
     environment:
-      groups:
-        - lango   # groupe de variables créé dans Codemagic, contenant API_URL
       flutter: stable
     triggering:
       events:
@@ -15,13 +13,6 @@ workflows:
       branch_patterns:
         - pattern: main
     scripts:
-      - name: Vérifier l'adresse du serveur
-        script: |
-          if [ -z "${API_URL:-}" ]; then
-            echo "ERREUR : la variable API_URL est vide. Ajoutez-la dans le groupe 'lango' de Codemagic."
-            exit 1
-          fi
-          echo "Serveur utilisé : $API_URL"
       - name: Préparer le projet Android
         script: cd app && bash tool/prepare_android.sh
       - name: Installer les dépendances
@@ -31,6 +22,13 @@ workflows:
       - name: Tests
         script: cd app && flutter test
       - name: Construire l'APK
-        script: cd app && flutter build apk --release --dart-define=API_URL=$API_URL
+        script: |
+          cd app
+          # API_URL facultative : sans elle, l'application utilise le serveur de test inscrit dans lib/config.dart
+          if [ -n "${API_URL:-}" ]; then
+            flutter build apk --release --dart-define=API_URL=$API_URL
+          else
+            flutter build apk --release
+          fi
     artifacts:
       - app/build/app/outputs/flutter-apk/*.apk
