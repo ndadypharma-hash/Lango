@@ -1,3 +1,5 @@
+import { randomBytes } from 'node:crypto';
+
 // Configuration centrale, lue depuis les variables d'environnement.
 // Voir .env.example pour la liste complète.
 
@@ -25,9 +27,12 @@ export interface AppConfig {
 
 export function loadConfig(overrides: Partial<AppConfig> = {}): AppConfig {
   const production = env.NODE_ENV === 'production';
-  const jwtSecret = env.JWT_SECRET ?? (production ? '' : 'dev-secret-a-changer');
-  if (production && !jwtSecret) {
-    throw new Error('JWT_SECRET est obligatoire en production');
+  let jwtSecret = env.JWT_SECRET ?? '';
+  if (!jwtSecret) {
+    if (production) throw new Error('JWT_SECRET est obligatoire en production');
+    // Version de test : secret aléatoire. Les sessions seront perdues au redémarrage.
+    jwtSecret = randomBytes(32).toString('hex');
+    console.warn('JWT_SECRET absent : secret temporaire généré (sessions perdues au redémarrage).');
   }
   const config: AppConfig = {
     port: Number(env.PORT ?? 3000),

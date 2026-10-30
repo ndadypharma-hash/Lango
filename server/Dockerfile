@@ -10,7 +10,8 @@ RUN npm run build
 
 FROM node:26-slim
 WORKDIR /app
-ENV NODE_ENV=production
+# NODE_ENV se règle dans les variables d'environnement de l'hébergeur :
+# laisser vide pour la version de test, 'production' pour le lancement.
 COPY package*.json ./
 RUN npm ci --omit=dev
 COPY --from=build /app/dist ./dist
