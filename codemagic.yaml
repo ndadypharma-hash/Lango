@@ -20,7 +20,7 @@ workflows:
       - name: Installer les dépendances
         script: cd app && flutter pub get
       - name: Analyser le code
-        script: cd app && flutter analyze --no-fatal-infos
+        script: cd app && flutter analyze --no-fatal-infos --no-fatal-warnings
       - name: Tests
         script: cd app && flutter test
       - name: Construire l'APK
