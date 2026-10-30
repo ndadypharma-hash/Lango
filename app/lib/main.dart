@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'config.dart';
 import 'screens/home_screen.dart';
 import 'screens/onboarding.dart';
 import 'screens/profile_edit_screen.dart';
@@ -40,7 +41,18 @@ class _Root extends StatelessWidget {
   Widget build(BuildContext context) {
     final session = context.watch<Session>();
     if (!session.ready) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(32),
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 24),
+              Text('Connexion à Lango…\nLa première ouverture peut prendre jusqu\'à une minute.', textAlign: TextAlign.center),
+            ]),
+          ),
+        ),
+      );
     }
     if (session.startupError != null && session.languages.isEmpty) {
       return Scaffold(
@@ -53,6 +65,11 @@ class _Root extends StatelessWidget {
               Text(session.startupError!, textAlign: TextAlign.center),
               const SizedBox(height: 16),
               FilledButton(onPressed: session.init, child: const Text('Réessayer')),
+              const SizedBox(height: 24),
+              // Diagnostic pour la version de test
+              Text('Serveur : $apiUrl', textAlign: TextAlign.center, style: const TextStyle(fontSize: 12)),
+              if (session.startupDetail != null)
+                Text(session.startupDetail!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 11)),
             ]),
           ),
         ),

@@ -14,6 +14,7 @@ class Session extends ChangeNotifier {
   List<Language> languages = [];
   bool ready = false;
   String? startupError;
+  String? startupDetail;
 
   /// Langue choisie sur l'écran d'accueil, avant la connexion.
   String? pendingLanguage;
@@ -22,6 +23,10 @@ class Session extends ChangeNotifier {
   static const _langKey = 'lango.pendingLanguage';
 
   Future<void> init() async {
+    if (ready) {
+      ready = false;
+      notifyListeners();
+    }
     final prefs = await SharedPreferences.getInstance();
     pendingLanguage = prefs.getString(_langKey);
     try {
@@ -38,8 +43,10 @@ class Session extends ChangeNotifier {
         }
       }
       startupError = null;
+      startupDetail = null;
     } on ApiException catch (e) {
       startupError = e.message;
+      startupDetail = e.detail;
     }
     ready = true;
     notifyListeners();

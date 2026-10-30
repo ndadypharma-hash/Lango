@@ -15,6 +15,13 @@ workflows:
       branch_patterns:
         - pattern: main
     scripts:
+      - name: Vérifier l'adresse du serveur
+        script: |
+          if [ -z "${API_URL:-}" ]; then
+            echo "ERREUR : la variable API_URL est vide. Ajoutez-la dans le groupe 'lango' de Codemagic."
+            exit 1
+          fi
+          echo "Serveur utilisé : $API_URL"
       - name: Préparer le projet Android
         script: cd app && bash tool/prepare_android.sh
       - name: Installer les dépendances

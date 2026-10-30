@@ -7,7 +7,9 @@ import 'models.dart';
 class ApiException implements Exception {
   final int status;
   final String message;
-  ApiException(this.status, this.message);
+  /// Détail technique, affiché dans les versions de test pour le diagnostic.
+  final String? detail;
+  ApiException(this.status, this.message, {this.detail});
   @override
   String toString() => message;
 }
@@ -33,9 +35,10 @@ class ApiClient {
 
     final http.Response res;
     try {
-      res = await http.Response.fromStream(await _http.send(req).timeout(const Duration(seconds: 20)));
-    } catch (_) {
-      throw ApiException(0, 'Connexion impossible. Vérifiez votre réseau.');
+      // 70 s : le serveur gratuit de test peut mettre une minute à se réveiller.
+      res = await http.Response.fromStream(await _http.send(req).timeout(const Duration(seconds: 70)));
+    } catch (e) {
+      throw ApiException(0, 'Connexion impossible au serveur Lango. Vérifiez votre réseau et réessayez.', detail: '$e');
     }
     final text = utf8.decode(res.bodyBytes);
     final data = text.isEmpty ? null : jsonDecode(text);
